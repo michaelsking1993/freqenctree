@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Frequencify</title>
+  <style type="text/css">
+    body {
+      margin: auto;
+      margin-top: 10px;
+      max-width: 800px;
+      text-align: center;
+    }
+    body,
+    #user-input {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    table, td {
+      border: 1px solid;
+      border-collapse: collapse;
+    }
+    button {
+      margin: 5px;
+      width: 200px;
+    }
+  </style>
+</head>
+<!-- IDEA 1 - Extract high frequency words and mark them -->
+<!-- IDEA 2 - Extract words that are associated with a definitions somewhere in the text (see sketchengine) -->
+<body>
+  <div id="user-input">
+    <textarea id="userText" cols="100" rows="20" placeholder="Enter your favorite text (or journal entry) to conduct a revealing analysis. - (Just for yaself! I don't save no info!) - (NOTE: this may create a pretty tree)"></textarea>
+    <button onclick="displayText()">Submit (Drumroll...)</button>
+  </div>
+  <div id="text-body"></div>
+  <button id="freq-btn" disabled="disabled" onclick="markWords()">Ok. Now the magic</button>
+  <div><table id="wordlist"></table></div>
+</body>
+<script type="text/javascript">
+
+  function displayText() {
+    var userText = document.getElementById("userText").value,
+        paragraphs = userText.split("\n"),
+        textContainer = document.getElementById("text-body");
+    // convert the newlines in the paragraph into <p> elements
+    for (var i = 0; i < paragraphs.length; i++) {
+      var p = document.createElement("P"),
+          // create a textNode with the paragraph's content
+          t = document.createTextNode(paragraphs[i]);
+      // append one to the other to the other; happy life.
+      p.appendChild(t);
+      textContainer.appendChild(p);
+    }
+    // clear away the text input field
+    document.getElementById("user-input").innerHTML = "";
+    // enable the second step
+    var newBtn = document.getElementById("freq-btn");
+    newBtn.disabled = false;
+  }
+
+  function markWords() {
+    // reset the wordlist table to prevent stacking
+    document.getElementById("wordlist").innerHTML = "";
+    getWords();
+    // to be changed in case I'll actually want to mark the words
+  }
+
+  function getWords() {
+    // fetch the text container
+    var textNode = document.getElementById("text-body").children;
+    var allWords = [];
+    // iterate over each child element
+    for (var i = 0; i < textNode.length; i++) {
+      var lineString = textNode[i].innerHTML;
+      // RegEx matching 1 or more whitespace chars followed by a newline
+      // OR just a newline
+      // OR just a tab character
+      // OR an English punctuation character
+      // and removes them completely
+      lineString = lineString.replace(/\s?\n|\n|\t|[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]/g, "");
+      // strip HTML-induced extra whitespaces at the start
+      lineString = lineString.replace(/^[\s*]+/, "");
+      // and also at the end of the line
+      lineString = lineString.replace(/[\s*]+$/, "");
+      // split into an array with each word as one item
+      lineArray = lineString.split(" ");
+      for (var elInd = 0; elInd < lineArray.length; elInd++) {
+        // convert every word to lowercase
+        singleWord = lineArray[elInd].toLowerCase();
+        // and append to the allWords array
+        allWords.push(singleWord);
+      }
+    }
+    countWords(allWords);
+  }
+
+  function countWords(dataArray) {
+    var countedWords = {};
+    dataArray.forEach(function(el){
+      // if the word is already in the hash, add 1, otherwise set to 1
+      countedWords[el] = countedWords[el] + 1 || 1
+    });
+    // create a sorted Array
+    var sortedArray = [],
+    // set cutoff frequency value for display
+        minFreqValue = 2;
+    // call the sort function to populate it
+    sortWords(countedWords, function(key, value) {
+      sortedArray.push(key, value);
+      if (value > minFreqValue) {
+        var container = document.getElementById("wordlist");
+        container.innerHTML += "<tr><td>" + key + "</td><td>" + value + "</td></tr>";
+      }
+    });
+    // allow the user to start over again and enter new text
+    var partyBtn = document.getElementById("freq-btn"),
+        resetBtn = document.createElement("BUTTON");
+    resetBtn.setAttribute("onclick", "window.location.reload()");
+    resetBtn.innerHTML = "Moar Magic!";
+    partyBtn.parentNode.insertBefore(resetBtn, partyBtn.nextSibling);
+    partyBtn.disabled = true;
+  }
+
+  //http://stackoverflow.com/questions/5199901/how-to-sort-an-associative-array-by-its-values-in-javascript
+  function sortWords(obj, callback, context) {
+      // create a tuple holding the information, to allow sorting
+      var tuples = [];
+      for (var key in obj) { 
+        tuples.push([key, obj[key]])
+      };
+      // check the counts of the words and sort them accordingly (descending order)
+      tuples.sort(function(a, b) {
+        return a[1] > b[1] ? 1 : a[1] < b[1] ? -1 : 0
+      });
+      // I don't understand this part down below here
+      var length = tuples.length;
+      while (length--) callback.call(context, tuples[length][0], tuples[length][1]);
+  }
+</script>
+</html>
