@@ -41,14 +41,13 @@
   function displayText() {
     var userText = document.getElementById("userText").value,
         paragraphs = userText.split("\n"),
-        textContainer = document.getElementById("text-body");
-    // convert the newlines in the paragraph into <p> elements
-    for (var i = 0; i < paragraphs.length; i++) {
+        textContainer = document.getElementById("text-body"); //what does this line do? I commented it out and everything still works
+    for (var i = 0; i < paragraphs.length; i++) { //why do you increase the i count by 1? I commented it out and it doesn't work, so it's necessary, but why are we counting here?
       var p = document.createElement("P"),
           // create a textNode with the paragraph's content
           t = document.createTextNode(paragraphs[i]);
       // append one to the other to the other; happy life.
-      p.appendChild(t);
+      p.appendChild(t); //why do we append one to the other?
       textContainer.appendChild(p);
     }
     // clear away the text input field
@@ -84,7 +83,7 @@
       lineString = lineString.replace(/[\s*]+$/, "");
       // split into an array with each word as one item
       lineArray = lineString.split(" ");
-      for (var elInd = 0; elInd < lineArray.length; elInd++) {
+      for (var elInd = 0; elInd < lineArray.length; elInd++) { //what does elInd stand for?
         // convert every word to lowercase
         singleWord = lineArray[elInd].toLowerCase();
         // and append to the allWords array
@@ -122,6 +121,7 @@
   }
 
   //http://stackoverflow.com/questions/5199901/how-to-sort-an-associative-array-by-its-values-in-javascript
+  // is this how the words get counted?
   function sortWords(obj, callback, context) {
       // create a tuple holding the information, to allow sorting
       var tuples = [];
